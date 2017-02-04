@@ -14,7 +14,9 @@ const				async				= require('async'),
 						Router			= require('./lib/router'),
 						EventEmitter= require('events'),
 						req					= http.IncomingMessage.prototype,
-						res					= http.ServerResponse.prototype
+						res					= http.ServerResponse.prototype,
+						Five				= require('johnny-five'),
+						shutdown 		= require('http-shutdown').extend()
 
 
 createJane = function(config={}, cb = function() { console.log('Jane Created and Callback Initiated') }) {
@@ -63,6 +65,9 @@ class Jane extends EventEmitter {
 		this.consumeFile = this.consumeFile
 		this.json = this.json
 		this.createParams = this.createParams
+		global['Jane'] = this
+		global['J5'] = Five
+		global['_'] = _
 		return this
 	}
 
@@ -135,7 +140,7 @@ class Jane extends EventEmitter {
 		// let controller_path = path.resolve(self.config.appPath, given_path)
 		let controller_base = _.last(self.controller_path.split('/'))
 		self.readDirectory(self.controller_path, controller_base).then(function(res) {
-			console.log(`controllers: ${_.keys(self.controllers)}`)
+			// console.log(`controllers: ${_.keys(self.controllers)}`)
 		}, function(err) { console.log(`error: ${err}`)})
 		return
 	} //loadControllers
@@ -144,7 +149,6 @@ class Jane extends EventEmitter {
 		this.enabled_host = this.io.of('/jane_enabled')
 		let self = this
 		self.connected_hosts.push({ [`${self.IP}`]: self.enabled_host })
-
 		self.enabled_host.on('connection', function(client) {
 			let client_address = _.last(client.handshake.address.split(':'))
 			if(!_.includes(_.map(self.connected_clients, function(cc) { _.keys(cc)[0] }), client_address )) {
@@ -260,7 +264,7 @@ class Jane extends EventEmitter {
 	listen(port, cb = function() { console.log(`Jane listening on localhost:${port}`) }) {
 		let self = this
 		this.JANEPORT = port
-		this.server = http.createServer(this)
+		this.server = http.createServer(this).withShutdown()
 		this.io = this.io(this.server)
 		this.enableJaneClient()
 		this.server = this.enableJaneHost(this.server)
