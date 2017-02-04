@@ -8,19 +8,19 @@ const					chai = require('chai'),
 
 chai.use(schema)
 
-describe.only('BaseController', () => {
+describe('BaseController', () => {
 	let baseController = null
 	let jane = null
 
 	before((done) => {
 		jane = Jane()
 		jane.listen(8080)
+		baseController = new BaseController
 		// 400 is enough time for 2 attempts to a single connection
 		setTimeout(() => {
 			console.log('loading connections...')
 			done()
 		}, 400)
-		baseController = new BaseController
 	})
 
 	describe('accepts object', () => {
@@ -73,6 +73,6 @@ describe.only('BaseController', () => {
 	})
 
 	after(() => {
-		jane.server.shutdown(() => { console.log('Jane has been cleanly shut down.') })
+		jane.server.shutdown(() => {  })
 	})
 })

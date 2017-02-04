@@ -5,9 +5,14 @@ const					expect = require('chai').expect,
 describe('Jane', () => {
 	let jane = null
 
-	before(() => {
+	before((done) => {
 		jane = Jane({controller_path: '../controllers'})
 		jane.listen(8080, () => {})
+
+		setTimeout(() => {
+			console.log('loading connections...')
+			done()
+		}, 400)
 	})
 
 	describe('Creation', () => {
@@ -27,7 +32,7 @@ describe('Jane', () => {
 		})
 	})
 
-	describe('The Enabled Jane Jost', () => {
+	describe('The Enabled Jane Host', () => {
 		it('should exist', () => {
 			expect(jane.enabled_host).to.not.be.null
 		})
