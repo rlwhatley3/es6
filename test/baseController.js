@@ -3,7 +3,7 @@ const					chai = require('chai'),
 							expect = chai.expect,
 							request = require('request'),
 							BaseController   = require('../jane/lib/controllers/base_controller'),
-							Jane   = require('../jane/jane.js')
+							Jane   = require('../jane/createJane.js')
 							enabledIndexSchema = require('./schemas/enabledIndexSchema')
 
 chai.use(schema)

@@ -1,12 +1,12 @@
 const					expect = require('chai').expect,
-							Jane   = require('../jane/jane.js'),
+							createJane   = require('../jane/createJane.js'),
 							Promise = require('bluebird')
 
-describe('Jane', () => {
+describe('Application Jane', () => {
 	let jane = null
 
 	before((done) => {
-		jane = Jane({controller_path: '../controllers'})
+		jane = createJane({controller_path: '../controllers'})
 		jane.listen(8080, () => {})
 
 		setTimeout(() => {
@@ -17,7 +17,7 @@ describe('Jane', () => {
 
 	describe('Creation', () => {
 		it('should return a new function', () => {
-			expect(Jane).to.be.a('function')
+			expect(createJane).to.be.a('function')
 		})
 
 		it('should return a new Jane on method call', () => {
@@ -46,7 +46,7 @@ describe('Jane', () => {
 		})
 	})
 
-	afterEach(() => {
+	after(() => {
 		jane.server.shutdown(() => { })
 	})
 })

@@ -9,9 +9,9 @@ const				async				= require('async'),
 						_						= require('lodash'),
 						exec				= require('child_process').exec,
 						includeAll	= require('include-all'),
-						util				= require('./lib/http_helpers'),
+						util				= require('./http_helpers'),
 						url 				= require('url')
-						Router			= require('./lib/router'),
+						Router			= require('./router'),
 						EventEmitter= require('events'),
 						req					= http.IncomingMessage.prototype,
 						res					= http.ServerResponse.prototype,
@@ -19,21 +19,8 @@ const				async				= require('async'),
 						shutdown 		= require('http-shutdown').extend()
 
 
-createJane = function(config={}, cb = function() { console.log('Jane Created and Callback Initiated') }) {
-	let app = function(req, res, next) {
-		app.handle(req, res, next)
-	}
 
-	let jane = new Jane(config)
-	app = _.merge(app, jane)
-
-	app.req = req
-	app.res = res
-	return app
-} //createJane
-
-
-class Jane extends EventEmitter {
+exports.Jane = class Jane extends EventEmitter {
 	constructor(config={}) {
 		super()
 		this._ = _
@@ -273,5 +260,4 @@ class Jane extends EventEmitter {
 
 } //Jane
 
-
-module.exports = createJane
+module.exports = exports
