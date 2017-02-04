@@ -133,36 +133,39 @@ exports.Jane = class Jane extends EventEmitter {
 	} //loadControllers
 
 	enableJaneHost(server) {
-		this.enabled_host = this.io.of('/jane_enabled')
-		let self = this
-		self.connected_hosts.push({ [`${self.IP}`]: self.enabled_host })
-		self.enabled_host.on('connection', function(client) {
-			let client_address = _.last(client.handshake.address.split(':'))
-			if(!_.includes(_.map(self.connected_clients, function(cc) { _.keys(cc)[0] }), client_address )) {
-				self.connected_clients.push({ [`${_.last(client.handshake.address.split(':'))}`]: client })
-			}
+		return new Promise((resolve, reject) => {
+			this.enabled_host = this.io.of('/jane_enabled')
+			let self = this
+			self.connected_hosts.push({ [`${self.IP}`]: self.enabled_host })
+			self.enabled_host.on('connection', function(client) {
+				let client_address = _.last(client.handshake.address.split(':'))
+				if(!_.includes(_.map(self.connected_clients, function(cc) { _.keys(cc)[0] }), client_address )) {
+					self.connected_clients.push({ [`${_.last(client.handshake.address.split(':'))}`]: client })
+				}
 
-			console.log(`Jane Enabled connection innitiated from client: ${_.last(client.handshake.address.split(':'))}`)
+				console.log(`Jane Enabled connection innitiated from client: ${_.last(client.handshake.address.split(':'))}`)
 
-			client.on('room', function(data) { 
-				let room = data.room
-				client.join(room)
-				self.enabled_host.to(room).emit('message', { message: `${client.handshake.address} is JaneEnabled` })
-			}) //room
+				client.on('room', function(data) { 
+					let room = data.room
+					client.join(room)
+					self.enabled_host.to(room).emit('message', { message: `${client.handshake.address} is JaneEnabled` })
+				}) //room
 
-			client.on('message', function(data) { console.log(`host service ${self.IP} recieved message from client ${client.handshake.address.split(':')[3]}: "${data.message}"`) })
+				client.on('message', function(data) { console.log(`host service ${self.IP} recieved message from client ${client.handshake.address.split(':')[3]}: "${data.message}"`) })
 
-			client.on('disconnect', function(data) {
-				console.log(`client disconnected: ${_.last(client.handshake.address.split(':'))}`)
-				self.connected_clients = _.filter(self.connected_clients, function(cc) { _.keys(cc)[0] != _.last(client.handshake.address.split(':')) })
-			}) //disconnect
-		}) //connection
+				client.on('disconnect', function(data) {
+					console.log(`client disconnected: ${_.last(client.handshake.address.split(':'))}`)
+					self.connected_clients = _.filter(self.connected_clients, function(cc) { _.keys(cc)[0] != _.last(client.handshake.address.split(':')) })
+				}) //disconnect
+			}) //connection
 
-		self.enabled_host.on('propagate', function(id, data) {
-			console.log(`propagate id: ${id}`)
-			self.consumeFile(data)
+			self.enabled_host.on('propagate', function(id, data) {
+				console.log(`propagate id: ${id}`)
+				self.consumeFile(data)
+			})
+			resolve(server)
 		})
-		return server
+		// return server
 	} //enableJaneJost
 
 	scan(blacklist=[]) {
@@ -254,8 +257,10 @@ exports.Jane = class Jane extends EventEmitter {
 		this.server = http.createServer(this).withShutdown()
 		this.io = this.io(this.server)
 		this.enableJaneClient()
-		this.server = this.enableJaneHost(this.server)
-		this.server.listen(this.JANEPORT, cb)
+		this.enableJaneHost(this.server).then((jane_server) => {
+			self.server.listen(self.JANEPORT, cb)
+			self.emit('host loaded', { host: self.enabled_host })
+		})
 	} //listen
 
 } //Jane

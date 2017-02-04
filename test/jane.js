@@ -16,13 +16,9 @@ describe('Application Jane', () => {
 	})
 
 	describe('Creation', () => {
-		it('should return a new function', () => {
-			expect(createJane).to.be.a('function')
-		})
+		it('should return a new function', () => { expect(createJane).to.be.a('function') })
 
-		it('should return a new Jane on method call', () => {
-			expect(jane).to.not.be.null && expect(jane).to.not.be.undefined
-		})
+		it('should return a new Jane on method call', () => { expect(jane).to.not.be.null && expect(jane).to.not.be.undefined })
 	})
 
 	describe('Connected Hosts', () => {
@@ -33,20 +29,12 @@ describe('Application Jane', () => {
 	})
 
 	describe('The Enabled Jane Host', () => {
-		it('should exist', () => {
-			expect(jane.enabled_host).to.not.be.null
-		})
+		it('should exist', () => { expect(jane.enabled_host).to.not.be.null })
 
-		it('should be named /jane_enabled', () => {
-			expect(jane.enabled_host.name).to.eq('/jane_enabled')
-		})
+		it('should be named /jane_enabled', () => { expect(jane.enabled_host.name).to.eq('/jane_enabled') })
 
-		it('should have the expected connection watcher', () => {
-			expect(_.keys(jane.enabled_host._events).includes('connection')).to.be.true
-		})
+		it('should have the expected connection watcher', () => { expect(_.keys(jane.enabled_host._events).includes('connection')).to.be.true })
 	})
 
-	after(() => {
-		jane.server.shutdown(() => { })
-	})
+	after(() => { jane.server.shutdown(() => { }) })
 })

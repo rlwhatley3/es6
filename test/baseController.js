@@ -62,9 +62,7 @@ describe('BaseController', () => {
 			expect(baseController.index).to.not.be.undefined && expect(baseController.index).to.not.be.null
 		})
 
-		it('should return 200 OK', () => {
-			expect(response.statusCode).to.eq(200)
-		})
+		it('should return 200 OK', () => { expect(response.statusCode).to.eq(200) })
 
 		it('should return the json for connections', () => {
 			expect(JSON.parse(body)).to.be.jsonSchema(enabledIndexSchema)
@@ -72,7 +70,5 @@ describe('BaseController', () => {
 
 	})
 
-	after(() => {
-		jane.server.shutdown(() => {  })
-	})
+	after(() => { jane.server.shutdown(() => {  }) })
 })

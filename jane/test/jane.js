@@ -1,14 +1,16 @@
-const					expect = require('chai').expect,
-							createJane   = require('../createJane'),
-							janeClass = require('../lib/jane').Jane,
-							Promise = require('bluebird')
-							// Jane = require('../createJane')
+const					chai					= require('chai')
+							expect 				= chai.expect,
+							createJane 		= require('../createJane'),
+							janeClass 		= require('../lib/jane').Jane
+							// Promise 			= require('bluebird')
 
-describe.only('Jane', () => {
+describe('Jane', () => {
 	let jane, j_Class
 	before((done) => {
 		jane = createJane({controller_path: '../controllers'})
 		jane.listen(8080, () => {})
+		// jane.on('host loaded', (data) => { done() })
+
 		j_Class = new janeClass()
 		setTimeout(() => {
 			console.log('loading connections...')
@@ -23,7 +25,7 @@ describe.only('Jane', () => {
 		})
 
 		it('should not return its own ip', () => { expect(scan.includes(j_Class.IP)).to.be.false })
-		
+
 		it('should return any ip on the network', () => { expect(scan.length).to.be.above(0) })
 	})
 

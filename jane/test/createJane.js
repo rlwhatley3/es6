@@ -3,17 +3,16 @@ const					expect = require('chai').expect,
 							janeClass = require('../lib/jane').Jane,
 							Promise = require('bluebird')
 
-describe('createJane', () => {
+describe.only('createJane', () => {
 	let jane = null
 
 	before((done) => {
 		jane = createJane({controller_path: '../controllers'})
-		jane.listen(8080, () => {})
-
-		setTimeout(() => {
-			console.log('loading connections...')
+		jane.on('host loaded', (data) => { 
+			console.log('jane server on host loaded')
 			done()
-		}, 400)
+		})
+		jane.listen(8080, () => {})
 	})
 
 	describe('Create Jane', () => {
@@ -30,12 +29,8 @@ describe('createJane', () => {
 		// (ie, it just returns the prototype of the app as a function, not as an emitter)
 		it('should return an event emitter', () => {
 			jane.emit('message', { data: 'data' })
-			jane.on('message', (data) => {
-				expect(data.data).to.eq('data')
-			})
-			setTimeout(() => {
-				expect(false).to.be.true
-			}, 100)
+			jane.on('message', (data) => { expect(data.data).to.eq('data') })
+			setTimeout(() => { expect(false).to.be.true }, 500)
 		})
 
 	})
