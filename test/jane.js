@@ -6,13 +6,9 @@ describe('Application Jane', () => {
 	let jane = null
 
 	before((done) => {
-		jane = createJane({controller_path: '../controllers'})
+		jane = createJane({controller_path: 'controllers'}, () => {})
+		jane.on('host enabled', (data) => { done() })
 		jane.listen(8080, () => {})
-
-		setTimeout(() => {
-			console.log('loading connections...')
-			done()
-		}, 400)
 	})
 
 	describe('Creation', () => {
@@ -33,7 +29,7 @@ describe('Application Jane', () => {
 
 		it('should be named /jane_enabled', () => { expect(jane.enabled_host.name).to.eq('/jane_enabled') })
 
-		it('should have the expected connection watcher', () => { expect(_.keys(jane.enabled_host._events).includes('connection')).to.be.true })
+		it('should have a connection watcher', () => { expect(_.keys(jane.enabled_host._events).includes('connection')).to.be.true })
 	})
 
 	after(() => { jane.server.shutdown(() => { }) })

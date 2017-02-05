@@ -3,19 +3,16 @@ const					expect = require('chai').expect,
 							janeClass = require('../lib/jane').Jane,
 							Promise = require('bluebird')
 
-describe.only('createJane', () => {
+describe('createJane', () => {
 	let jane = null
 
 	before((done) => {
 		jane = createJane({controller_path: '../controllers'})
-		jane.on('host loaded', (data) => { 
-			console.log('jane server on host loaded')
-			done()
-		})
+		jane.on('host enabled', (data) => { done() })
 		jane.listen(8080, () => {})
 	})
 
-	describe('Create Jane', () => {
+	describe('Create Jane:', () => {
 		it('should be a function', () => { expect(createJane).to.be.a('function') })
 
 		it('should return a new Jane class on method call', () => {
@@ -35,8 +32,6 @@ describe.only('createJane', () => {
 
 	})
 
-	after(() => {
-		jane.server.shutdown(() => { })
-	})
+	after(() => { jane.server.shutdown(() => { }) })
 
 })

@@ -37,7 +37,7 @@ exports.Jane = class Jane extends EventEmitter {
 		this.controllers = {}
 		this.controller_path = path.resolve(this.config.appPath, this.config.controller_path)
 		this.controller_directories = []
-		this.loadControllers()
+		this.loadControllers().then((controllers) => { this.emit('controllers enabled', { controllers: controllers }) })
 		this.Router = new Router(this.controllers)
 		this.req = _.merge(req, util)
 		this.res = _.merge(res, util)
@@ -60,6 +60,7 @@ exports.Jane = class Jane extends EventEmitter {
 
 	handle(req, res, next) {
 		req.JANE = this
+		global['Jane'] = this
 		this.Router.route(req, res, next)
 	} //handle
 
@@ -98,6 +99,7 @@ exports.Jane = class Jane extends EventEmitter {
 		let self = this
 		return new Promise(function(resolve, reject) {
 			fs.readdir(directory, function(err, traversables) {
+				if(err) { console.error(err)}
 				traversables = _.map(traversables, function(traversable) {
 					let ret = {
 						name: traversable,
@@ -124,15 +126,16 @@ exports.Jane = class Jane extends EventEmitter {
 
 	loadControllers() {
 		let self = this
-		// let controller_path = path.resolve(self.config.appPath, given_path)
-		let controller_base = _.last(self.controller_path.split('/'))
-		self.readDirectory(self.controller_path, controller_base).then(function(res) {
-			// console.log(`controllers: ${_.keys(self.controllers)}`)
-		}, function(err) { console.log(`error: ${err}`)})
-		return
+		return new Promise((resolve, reject) => {
+			let controller_base = _.last(self.controller_path.split('/'))
+			self.readDirectory(self.controller_path, controller_base).then(function(res) {
+				// console.log(`controllers: ${_.keys(self.controllers)}`)
+				resolve(self.controllers)
+			}, function(err) { console.log(`error: ${err}`)})
+		})
 	} //loadControllers
 
-	enableJaneHost(server) {
+	enableJaneHost() {
 		return new Promise((resolve, reject) => {
 			this.enabled_host = this.io.of('/jane_enabled')
 			let self = this
@@ -163,9 +166,8 @@ exports.Jane = class Jane extends EventEmitter {
 				console.log(`propagate id: ${id}`)
 				self.consumeFile(data)
 			})
-			resolve(server)
+			resolve(true)
 		})
-		// return server
 	} //enableJaneJost
 
 	scan(blacklist=[]) {
@@ -214,7 +216,7 @@ exports.Jane = class Jane extends EventEmitter {
 			if(_.includes(connected_names, host)) { reject({ message: 'connection exists', existing_connection: connected[host] }) }
 			let socket = self.io_client.connect(connection_string, { reconnect: false, timeout: 400, reconnectionAttempts: 2 })
 			socket.on('connect', function() {
-				socket.on('message', function(data) { console.log(`host '${host}' sent message: ${data.message}`) })
+				socket.on('message', function(data) { /*console.log(`host '${host}' sent message: ${data.message}`)*/ })
 				socket.emit('room', { room: room })
 				socket.emit('message', { message: `a message from client to host: ${host}` })
 				socket.on('propagate', function(id, data) { self.consumeFile(data) })
@@ -257,10 +259,8 @@ exports.Jane = class Jane extends EventEmitter {
 		this.server = http.createServer(this).withShutdown()
 		this.io = this.io(this.server)
 		this.enableJaneClient()
-		this.enableJaneHost(this.server).then((jane_server) => {
-			self.server.listen(self.JANEPORT, cb)
-			self.emit('host loaded', { host: self.enabled_host })
-		})
+		this.enableJaneHost().then((bs) => { self.emit('host enabled', { host: self.enabled_host }) })
+		self.server.listen(self.JANEPORT, cb)
 	} //listen
 
 } //Jane

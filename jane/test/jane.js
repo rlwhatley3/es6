@@ -4,18 +4,13 @@ const					chai					= require('chai')
 							janeClass 		= require('../lib/jane').Jane
 							// Promise 			= require('bluebird')
 
-describe('Jane', () => {
+describe('Jane:', () => {
 	let jane, j_Class
 	before((done) => {
 		jane = createJane({controller_path: '../controllers'})
-		jane.listen(8080, () => {})
-		// jane.on('host loaded', (data) => { done() })
-
 		j_Class = new janeClass()
-		setTimeout(() => {
-			console.log('loading connections...')
-			done()
-		}, 400)
+		jane.on('host enabled', (data) => { done() })
+		jane.listen(8080, () => {})
 	})
 
 	context('scanning', () => {
@@ -29,8 +24,5 @@ describe('Jane', () => {
 		it('should return any ip on the network', () => { expect(scan.length).to.be.above(0) })
 	})
 
-
-	after(() => {
-		jane.server.shutdown(() => { })
-	})
+	after(() => { jane.server.shutdown(() => { }) })
 })
