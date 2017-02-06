@@ -15,9 +15,9 @@ class BaseController {
 	} //constructor
 
 	index(req, res, next) {
-		let client_names = req.JANE.connected_clients.map(client => _.keys(client)[0])
-		let host_names = req.JANE.connected_hosts.map(host => _.keys(host)[0] )
-		res.json(res, { enabled_clients: client_names, enabled_hosts: host_names, self: req.JANE.IP })
+		let client_names = Jane.connected_clients.map(client => _.keys(client)[0])
+		let host_names = Jane.connected_hosts.map(host => _.keys(host)[0] )
+		res.json(res, { enabled_clients: client_names, enabled_hosts: host_names, self: Jane.IP })
 	} //index
 
 	show(req, res, next) {

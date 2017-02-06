@@ -4,26 +4,38 @@ const 		url				= require('url'),
 class Router {
 	constructor(controllers) {
 		this.controllers = controllers
+		this.route = this.route
+		this.setMethodType = this.setMethodType
+		this.request = null
+		this.response = null
+		this.current_method_type = null
+		this.next = null
 		return this
 	}
 
-	route(req, res, next) {
-		let method = req.method
-		let method_type = null
-		switch (method) {
+	setMethodType() {
+		let self = this
+		switch (self.request.method) {
 			case 'GET':
-				method_type = 'index'
+				self.current_method_type = 'index'
 				break
 			case 'PUT':
-				method_type = 'update'
+				self.current_method_type = 'update'
 				break
 			case 'POST':
-				method_type = 'create'
+				self.current_method_type = 'create'
 				break
 			case 'DELETE':
-				method_type = 'destroy'
+				self.current_method_type = 'destroy'
 				break
 		} //switch
+	}
+
+	route(req, res, next) {
+		let self = this
+		self.request = req
+		self.response = res
+		self.setMethodType()
 		let parsedUrl = url.parse(req.url)
 		let endPoint = parsedUrl.pathname
 		if(endPoint == '/favicon.ico') { return res.favicon(res) }
@@ -31,12 +43,12 @@ class Router {
 		let controller_name = action_sequence[1]
 		let special_action = null
 		if(action_sequence.length > 1) { special_action = action_sequence[2] }
-		if(special_action != null) { method_type = special_action }
-
-		if(_.includes(_.keys(this.controllers), controller_name) && this.controllers[controller_name] && this.controllers[controller_name][method_type] && _.includes(this.controllers[controller_name].accepts[method], method_type))
-			this.controllers[controller_name][method_type](req, res, next)
-		else
+		if(special_action != null) { self.current_method_type = special_action }
+		if(_.includes(_.keys(this.controllers), controller_name) && this.controllers[controller_name] && this.controllers[controller_name][self.current_method_type] && _.includes(this.controllers[controller_name].accepts[self.request.method], self.current_method_type)) {
+			this.controllers[controller_name][self.current_method_type](req, res, next)
+		} else {
 			res.send404(res)
+		}
 	} //route
 }
 

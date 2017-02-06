@@ -3,7 +3,9 @@ const					chai = require('chai'),
 							expect = chai.expect,
 							request = require('request'),
 							BaseController   = require('../lib/controllers/base_controller'),
-							createJane   = require('../createJane')
+							createJane   = require('../createJane'),
+							httpMocks			= require('node-mocks-http'),
+							baseControllerSchema = require('./schemas/baseControllerSchema')
 
 chai.use(schema)
 
@@ -12,14 +14,44 @@ describe('BaseController', () => {
 	let jane = null
 
 	before((done) => {
-		jane = createJane()
+		jane = createJane({controller_path: '../controllers'})
 		baseController = new BaseController
 		jane.on('host enabled', (data) => { done() })
-		jane.listen(8080)
+		jane.listen(8080, () => {})
 	})
 
-	describe('accepts object:', () => {
-		it('should contain an accepts object', () => {
+	context('methods:', () => {
+		describe('index', () => {
+			let mock_request
+
+			it('should be present', () => { expect(baseController['index']).to.not.be.null && expect(baseController['index']).to.not.be.undefined })
+
+			context('using no params', () => {
+				let response, body
+				let url = 'http://localhost:8080/controller'
+				before((done) => {
+
+					jane.controllers['controller'] = new BaseController
+					jane.Router.controllers = jane.controllers
+
+					request(url, (err, respons, bod) => {
+						if(err) { error = err }
+						response = respons
+						body = bod
+						done()
+					})
+				})
+
+				it('should return 200 OK', () => { expect(response.statusCode).to.equal(200) })
+
+				it('should return the connections object', () => { expect(JSON.parse(body)).to.be.jsonSchema(baseControllerSchema) })
+			})
+
+		})
+	})
+
+	context('accepts object:', () => {
+		it('should be present', () => {
 			expect(baseController.accepts).to.not.be.undefined && expect(baseController.accepts).to.not.be.null
 		})
 
@@ -39,5 +71,6 @@ describe('BaseController', () => {
 			expect(baseController.accepts['DELETE'].includes('destroy')).to.be.true
 		})
 	})
+
 	after(() => { jane.server.shutdown(() => { }) })
 })

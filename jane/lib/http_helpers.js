@@ -29,8 +29,7 @@ exports.redirector = function(res, loc, status=302) {
 
 exports.json = function(res, data, status=200) {
 	res.writeHead(status, headers)
-	let json = JSON.stringify(data)
-	res.end(json)
+	res.end(JSON.stringify(data))
 }
 
 exports.favicon = exports.respond
