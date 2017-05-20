@@ -30,7 +30,7 @@ exports.Jane = class Jane extends EventEmitter {
 		this.available_interfaces = os.networkInterfaces()
 
 		console.log('network interfaces')
-		console.log(this.available_ips)
+		console.log(this.available_interfaces)
 		this.IP = this.available_interfaces[_.keys(this.available_interfaces)[1]][0].address
 		this.settings = {}
 		this.JANEPORT = null
