@@ -1,22 +1,22 @@
-const				async				= require('async'),
-						fs 					= require('fs'),
-						path				= require('path'),
-						os					= require('os'),
-						http				= require('http'),
-						Promise			= require('bluebird'),
-						io					= require('socket.io'),
-						io_client		= require('socket.io-client'),
-						_						= require('lodash'),
-						exec				= require('child_process').exec,
-						includeAll	= require('include-all'),
-						util				= require('./http_helpers'),
-						url 				= require('url')
-						Router			= require('./router'),
-						EventEmitter= require('events'),
-						req					= http.IncomingMessage.prototype,
-						res					= http.ServerResponse.prototype,
-						Five				= require('johnny-five'),
-						shutdown 		= require('http-shutdown').extend()
+const       async       = require('async'),
+					fs          = require('fs'),
+					path        = require('path'),
+					os          = require('os'),
+					http        = require('http'),
+					Promise     = require('bluebird'),
+					io          = require('socket.io'),
+					io_client   = require('socket.io-client'),
+					_           = require('lodash'),
+					exec        = require('child_process').exec,
+					includeAll  = require('include-all'),
+					util        = require('./http_helpers'),
+					url         = require('url')
+					Router      = require('./router'),
+					EventEmitter= require('events'),
+					req         = http.IncomingMessage.prototype,
+					res         = http.ServerResponse.prototype,
+					Five        = require('johnny-five'),
+					shutdown    = require('http-shutdown').extend()
 
 
 
@@ -27,8 +27,11 @@ exports.Jane = class Jane extends EventEmitter {
 		this.config = config
 		this.config.appPath = process.cwd()
 		if(this.config.controller_path == null || this.config.controller_path == '') { this.config.controller_path = 'controllers' }
-		this.available_ips = os.networkInterfaces()
-		this.IP = this.available_ips[_.keys(this.available_ips)[1]][0].address
+		this.available_interfaces = os.networkInterfaces()
+
+		console.log('network interfaces')
+		console.log(this.available_ips)
+		this.IP = this.available_interfaces[_.keys(this.available_interfaces)[1]][0].address
 		this.settings = {}
 		this.JANEPORT = null
 		this.possible_hosts = []
@@ -139,6 +142,8 @@ exports.Jane = class Jane extends EventEmitter {
 		return new Promise((resolve, reject) => {
 			this.enabled_host = this.io.of('/jane_enabled')
 			let self = this
+			console.log('mac ip')
+			console.log(self.IP)
 			self.connected_hosts.push({ [`${self.IP}`]: self.enabled_host })
 			self.enabled_host.on('connection', function(client) {
 				let client_address = _.last(client.handshake.address.split(':'))
