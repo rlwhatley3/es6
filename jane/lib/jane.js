@@ -28,18 +28,16 @@ exports.Jane = class Jane extends EventEmitter {
 		this.config.appPath = process.cwd()
 		if(this.config.controller_path == null || this.config.controller_path == '') { this.config.controller_path = 'controllers' }
 		this.available_interfaces = os.networkInterfaces()
-		console.log('platform')
-		console.log(os.platform())
-		console.log('type')
-		console.log(os.type())
-		console.log('network interfaces')
-		console.log(this.available_interfaces)
 		switch(os.platform()) {
 			case 'linux': 
 				this.IP = this.available_interfaces['wlan0'][0].address
 				break;
 			case 'darwin':
 				this.IP = this.available_interfaces['en0'][1].address
+				break;
+			default:
+				this.IP = this.available_interfaces['wlan0'][0].address
+				break;
 		}
 		// this.IP = this.available_interfaces[_.keys(this.available_interfaces)[1]][0].address
 		this.settings = {}
