@@ -34,7 +34,14 @@ exports.Jane = class Jane extends EventEmitter {
 		console.log(os.type())
 		console.log('network interfaces')
 		console.log(this.available_interfaces)
-		this.IP = this.available_interfaces[_.keys(this.available_interfaces)[1]][0].address
+		switch(os.platform()) {
+			case 'linux': 
+				this.IP = this.available_interfaces['wlan0'][0].address
+				break;
+			case 'darwin':
+				this.IP = this.available_interfaces['en0'][1].address
+		}
+		// this.IP = this.available_interfaces[_.keys(this.available_interfaces)[1]][0].address
 		this.settings = {}
 		this.JANEPORT = null
 		this.possible_hosts = []
