@@ -151,8 +151,6 @@ exports.Jane = class Jane extends EventEmitter {
 		return new Promise((resolve, reject) => {
 			this.enabled_host = this.io.of('/jane_enabled')
 			let self = this
-			console.log('mac ip')
-			console.log(self.IP)
 			self.connected_hosts.push({ [`${self.IP}`]: self.enabled_host })
 			self.enabled_host.on('connection', function(client) {
 				let client_address = _.last(client.handshake.address.split(':'))
@@ -188,8 +186,6 @@ exports.Jane = class Jane extends EventEmitter {
 		return new Promise(function(resolve, reject) {
 			if(os.platform() == 'darwin') {
 				Arp.table((err, entry) => {
-					console.log('arp table')
-					console.log(entry)
 					let hosts = entry.map(e => { return e.ip })
 					resolve(hosts)
 				})
@@ -233,8 +229,6 @@ exports.Jane = class Jane extends EventEmitter {
 
 		return new Promise(function(resolve, reject) {
 			let connection_string = `http://${host}:${self.JANEPORT}${room}`
-			console.log('connection string')
-			console.log(connection_string)
 			let connected = self.connected_clients.concat(self.connected_hosts)
 			let connected_names = connected.map(connected => _.keys(connected)[0])
 
