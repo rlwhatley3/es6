@@ -1,4 +1,4 @@
-const       async       = require('async'),
+const     async       = require('async'),
 					fs          = require('fs'),
 					path        = require('path'),
 					os          = require('os'),
@@ -16,7 +16,8 @@ const       async       = require('async'),
 					req         = http.IncomingMessage.prototype,
 					res         = http.ServerResponse.prototype,
 					Five        = require('johnny-five'),
-					shutdown    = require('http-shutdown').extend()
+					shutdown    = require('http-shutdown').extend(),
+					Arp 				= require('arp-a')
 
 
 
@@ -185,11 +186,20 @@ exports.Jane = class Jane extends EventEmitter {
 
 	scan(blacklist=[]) {
 		return new Promise(function(resolve, reject) {
-			exec('arp -n | awk \'{print $1}\' | tail -n+2', function(err, ret) {
-				if (err) { console.error(err) && reject(err) }
-				let hosts = _(ret.split('\n')).map(function(ip) { if(ip != '' && !_.includes(blacklist, ip)) { return ip } }).compact().value()
-				resolve(hosts)
-			}) //exec
+			if(os.platform() == 'darwin') {
+				Arp.table((err, entry) => {
+					console.log('arp table')
+					console.log(entry)
+					let hosts = entry.map(e => { return e.ip })
+					resolve(hosts)
+				})
+			} else {
+				exec('arp -n | awk \'{print $1}\' | tail -n+2', function(err, ret) {
+					if (err) { console.error(err) && reject(err) }
+					let hosts = _(ret.split('\n')).map(function(ip) { if(ip != '' && !_.includes(blacklist, ip)) { return ip } }).compact().value()
+					resolve(hosts)
+				}) //exec
+			} // else
 		}) //promise
 	} //scan
 
@@ -217,11 +227,14 @@ exports.Jane = class Jane extends EventEmitter {
 	} //consumeFile
 
 	connectAsClient(host, room) {
+		console.log('connect as client')
 		let self = this
 		let res = null
 
 		return new Promise(function(resolve, reject) {
 			let connection_string = `http://${host}:${self.JANEPORT}${room}`
+			console.log('connection string')
+			console.log(connection_string)
 			let connected = self.connected_clients.concat(self.connected_hosts)
 			let connected_names = connected.map(connected => _.keys(connected)[0])
 
@@ -255,6 +268,8 @@ exports.Jane = class Jane extends EventEmitter {
 			let hosts = []
 			let room = '/jane_enabled'
 			self.possible_hosts = possible_hosts
+			console.log('possible hosts: enable jane client')
+			console.log(possible_hosts)
 			Promise.mapSeries(possible_hosts, function(possible_host) { return self.connectAsClient(possible_host, room) }).then(function(res) {
 				_(res).compact().map(function(connection_attempt) { if(connection_attempt.connected != null && connection_attempt.connected != 'undefined') { hosts.push({[`${connection_attempt.connected}`]: connection_attempt.socket }) } }).value()
 				_.each(hosts, function(host) { if(!_.includes(_.keys(self.connected_hosts), _.keys(host)[0])) { self.connected_hosts.push(host) } })
