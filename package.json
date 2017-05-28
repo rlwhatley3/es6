@@ -13,7 +13,8 @@
     "arp-a": "^0.5.1",
     "bluebird": "^3.4.7",
     "http-shutdown": "^1.1.0",
-    "johnny-five": "^0.10.6"
+    "johnny-five": "^0.10.6",
+    "pluralize": "^5.0.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",

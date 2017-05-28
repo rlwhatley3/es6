@@ -16,11 +16,12 @@ class BaseController {
 
 	index(req, res, next) {
 		let client_names = Jane.connected_clients.map(client => _.keys(client)[0])
-		let host_names = Jane.connected_hosts.map(host => _.keys(host)[0] )
+		let host_names = Jane.connected_hosts.map(host => _.keys(host)[0])
 		res.json(res, { enabled_clients: client_names, enabled_hosts: host_names, self: Jane.IP })
 	} //index
 
 	show(req, res, next) {
+		console.log('show')
 		// let id = req.params['id']
 		// Connected.find(id).then(function(C) { res.json(C) }, function(err) { console.error(err) })
 	}

@@ -151,7 +151,7 @@ exports.Jane = class Jane extends EventEmitter {
 		return new Promise((resolve, reject) => {
 			this.enabled_host = this.io.of('/jane_enabled')
 			let self = this
-			self.connected_hosts.push({ [`${self.IP}`]: self.enabled_host })
+			// self.connected_hosts.push({ [`${self.IP}`]: self.enabled_host })
 			self.enabled_host.on('connection', function(client) {
 				let client_address = _.last(client.handshake.address.split(':'))
 				if(!_.includes(_.map(self.connected_clients, function(cc) { _.keys(cc)[0] }), client_address )) {
@@ -186,7 +186,7 @@ exports.Jane = class Jane extends EventEmitter {
 		return new Promise(function(resolve, reject) {
 			if(os.platform() == 'darwin') {
 				Arp.table((err, entry) => {
-					let hosts = entry.map(e => { return e.ip })
+					let hosts = entry.map(e => { return e.ip }).filter(ip => !_.includes(blacklist, ip))
 					resolve(hosts)
 				})
 			} else {
@@ -223,7 +223,6 @@ exports.Jane = class Jane extends EventEmitter {
 	} //consumeFile
 
 	connectAsClient(host, room) {
-		console.log('connect as client')
 		let self = this
 		let res = null
 
@@ -236,6 +235,7 @@ exports.Jane = class Jane extends EventEmitter {
 			if(_.includes(connected_names, host)) { reject({ message: 'connection exists', existing_connection: connected[host] }) }
 			let socket = self.io_client.connect(connection_string, { reconnect: false, timeout: 400, reconnectionAttempts: 2 })
 			socket.on('connect', function() {
+				console.log(`Connected as client to host: ${host}`)
 				socket.on('message', function(data) { /*console.log(`host '${host}' sent message: ${data.message}`)*/ })
 				socket.emit('room', { room: room })
 				socket.emit('message', { message: `a message from client to host: ${host}` })
@@ -262,8 +262,6 @@ exports.Jane = class Jane extends EventEmitter {
 			let hosts = []
 			let room = '/jane_enabled'
 			self.possible_hosts = possible_hosts
-			console.log('possible hosts: enable jane client')
-			console.log(possible_hosts)
 			Promise.mapSeries(possible_hosts, function(possible_host) { return self.connectAsClient(possible_host, room) }).then(function(res) {
 				_(res).compact().map(function(connection_attempt) { if(connection_attempt.connected != null && connection_attempt.connected != 'undefined') { hosts.push({[`${connection_attempt.connected}`]: connection_attempt.socket }) } }).value()
 				_.each(hosts, function(host) { if(!_.includes(_.keys(self.connected_hosts), _.keys(host)[0])) { self.connected_hosts.push(host) } })
